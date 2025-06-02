@@ -1,0 +1,7 @@
+rules:
+  - id: no-eval
+    patterns:
+      - pattern: eval($X)
+    message: Avoid using eval(); it can execute arbitrary code and is a major security risk.
+    severity: ERROR
+    languages: [python]
