@@ -1,4 +1,4 @@
-name: Security Scan with Semgrep
+name: Security Checks
 
 on:
   push:
@@ -7,22 +7,44 @@ on:
     branches: [ main ]
 
 jobs:
-  semgrep:
-    name: Run Semgrep
+  security:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: 3.11
 
-      - name: Install Semgrep
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install semgrep
+          pip install -r app/requirements.txt
 
-      - name: Run Semgrep scan
-        run: semgrep --config semgrep-rules/
+      - name: Run Semgrep (SAST) with SARIF Output
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: ./semgrep-rules
+        continue-on-error: true
+
+      - name: Upload Semgrep Results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: semgrep.sarif
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: Build Docker image
+        run: docker build -t app-sec-demo .
+
+      - name: Run Trivy scan
+        run: trivy image --severity HIGH,CRITICAL --exit-code 1 app-sec-demo

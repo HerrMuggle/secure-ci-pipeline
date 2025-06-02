@@ -1,91 +1,108 @@
-# 🔐 Secure CI/CD Pipeline with Docker, Semgrep & Trivy
+> ⚠️ This application is **intentionally vulnerable**. It is built for demonstration purposes only. Do not deploy this in production environments.
 
-> ⚠️ This application is intentionally vulnerable. It is built for demonstration purposes only.  
-> **Do not deploy this in production environments.**
+# Secure CI/CD Pipeline Demo
 
-This project showcases a **DevSecOps CI/CD pipeline** that integrates security scanning directly into the development workflow using:
+This project demonstrates a Dockerized secure CI/CD pipeline integrating multiple security tools:
 
-- A containerized Python app
-- Static and dynamic analysis tools (Semgrep & Trivy)
-- GitHub Actions for automated scans
-- Optional SARIF integration for GitHub Security alerts
-
----
-
-## What It Does
-
-- Runs **Semgrep** with `--config=auto` to scan for insecure code patterns.
-- Runs **Trivy** to detect **HIGH** and **CRITICAL** vulnerabilities in the app’s file system and container.
-- Provides easy-to-read output and error messages.
-- Displays usage instructions for invalid or missing commands.
+- **Semgrep** — Static Application Security Testing (SAST)
+- **Trivy** — Container image & filesystem vulnerability scanner
+- **Checkov** — Infrastructure as Code (IaC) security scanning (Terraform)
+- **OPA (Open Policy Agent)** — Policy as code for IaC validation
 
 ---
 
-## 🧱 Tech Stack
+## Tech Stack
 
-| Component        | Purpose                                |
-|------------------|----------------------------------------|
-| Python (Flask)   | Lightweight web application (optional) |
-| Docker           | Containerization of the CLI-based scanner |
-| GitHub Actions   | CI/CD workflow automation (optional)   |
-| Semgrep          | Static AppSec scanning tool            |
-| Trivy            | Container and filesystem vulnerability scanner |
-| SARIF            | GitHub-integrated security report format (optional) |
+- Python 3.13 (Flask app and CLI runner)
+- Docker (for containerizing app and scans)
+- GitHub Actions (CI/CD workflows)
+- Semgrep (static code analysis)
+- Trivy (container & filesystem vulnerability scanning)
+- Checkov (Terraform IaC scanning)
+- OPA (policy enforcement on IaC)
 
 ---
 
-## 🐳 How to Use:
+## Usage
 
-### Build the Docker Image:
-
-```bash
-docker build -t secure-ci-app .```
-
-### Run Semgrep Scan
+### Build Docker image
 
 ```bash
-docker run --rm secure-ci-app python main.py semgrep```
+docker build -t secure-ci-app .
+```
 
-### Run Trivy Scan
-
-```bash
-docker run --rm secure-ci-app python main.py trivy```
-
-### docker run --rm secure-ci-app python main.py help
+### Run Semgrep scan inside container
 
 ```bash
-docker run --rm secure-ci-app python main.py help```
-
-### Mount Local Code for Scanning
-
-```bash
-docker run --rm -v "$(pwd)":/app secure-ci-app python main.py semgrep```
+docker run --rm secure-ci-app python main.py semgrep
+```
+### Run Trivy scan inside container
 
 ```bash
-docker run --rm -v "$(pwd)":/app secure-ci-app python main.py trivy```
+docker run --rm secure-ci-app python main.py trivy
+```
+
+### Show help commands
+
+```bash
+docker run --rm secure-ci-app python main.py help
+```
+
+### Scan your local code by mounting your directory into container
+
+```bash
+docker run --rm -v "$(pwd)":/app secure-ci-app python main.py semgrep
+docker run --rm -v "$(pwd)":/app secure-ci-app python main.py trivy
+```
 
 ---
 
 ## Project Structure
 
+```
 secure-ci-pipeline/
 ├── app/
 │   ├── main.py
 │   ├── requirements.txt
+├── semgrep-rules/
+│   └── ... (custom Semgrep rules)
 ├── Dockerfile
 ├── README.md
+├── .github/
+│   └── workflows/
+│       ├── security.yml
+│       └── iac-security.yml
+└── iac-checkov-opa/
+    ├── policies/
+    ├── main.tf
+    └── requirements.txt
+```
 
 ---
 
-## Learning Outcomes
+## What it does
 
-- Implementing static & dynamic analysis in CI/CD
+- Runs Semgrep with auto or custom rules to catch insecure code patterns
 
-- Running security tools in containers
+- Runs Trivy to detect high/critical vulnerabilities in container images and filesystem
 
-- Automating secure code scanning in pipelines
+- Runs Checkov and OPA on your Terraform IaC for policy compliance and security
 
-- Building your own security command center
+- Uploads Semgrep results as SARIF to GitHub Security tab for easy review
 
+- Automates all scans via GitHub Actions CI/CD pipelines
 
-Modified and extended by Michael Arruda, building on a public demo project by Paul D., Security Automation Engineer.
+---
+
+## Notes
+
+- The Flask app contains an intentional vulnerability for demonstration purposes.
+
+- Customize and extend Semgrep rules under `semgrep-rules/`.
+
+- Ensure your IaC code is under `iac-checkov-opa/` for the IaC scanning workflows.
+
+---
+
+## Author
+Modified and extended by `Michael A.`, building on a public demo project by Paul D., Security Automation Engineer.

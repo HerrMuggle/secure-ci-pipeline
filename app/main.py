@@ -1,53 +1,61 @@
+import argparse
 import subprocess
-import sys
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    # 🔥 Intentional insecure code for Semgrep to find
+    eval("print('This is a Semgrep test finding')")  # Semgrep should flag this
+    return "Secure CI/CD Example"
 
 def run_semgrep():
     print("Running Semgrep scan...")
-    result = subprocess.run(["semgrep", "--config=auto", "."], capture_output=True, text=True)
+    # Use --config=auto or custom rules directory if you want
+    result = subprocess.run(
+        ["semgrep", "--config=auto", "--verbose"],
+        capture_output=True,
+        text=True,
+    )
     print(result.stdout)
-    if result.returncode != 0:
-        print("Semgrep errors or findings detected:")
-        print(result.stderr)
-    else:
-        print("Semgrep scan completed successfully.")
+    print(result.stderr)
 
 def run_trivy():
-    print("Running Trivy scan...")
-    # Scan current directory, assuming Dockerfile or files present for Trivy scanning
-    # You can customize Trivy args here
-    result = subprocess.run(["trivy", "fs", "--severity", "HIGH,CRITICAL", "--no-progress", "."], capture_output=True, text=True)
+    print("Running Trivy scan on local filesystem...")
+    result = subprocess.run(
+        ["trivy", "fs", "--severity", "HIGH,CRITICAL", "--exit-code", "1", "."],
+        capture_output=True,
+        text=True,
+    )
     print(result.stdout)
-    if result.returncode != 0:
-        print("Trivy scan detected issues:")
-        print(result.stderr)
-    else:
-        print("Trivy scan completed successfully.")
+    print(result.stderr)
 
-def print_usage():
-    print("Usage: python main.py [command]")
-    print("Commands:")
-    print("  semgrep   Run Semgrep scan on the current directory")
-    print("  trivy     Run Trivy scan on the current directory")
-    print("  help      Show this help message")
+def show_help():
+    help_text = """
+Usage: python main.py [command]
 
-def main():
-    if len(sys.argv) < 2:
-        print("Error: No command provided.")
-        print_usage()
-        sys.exit(1)
-
-    command = sys.argv[1].lower()
-
-    if command == "semgrep":
-        run_semgrep()
-    elif command == "trivy":
-        run_trivy()
-    elif command == "help":
-        print_usage()
-    else:
-        print(f"Unknown command: {command}")
-        print_usage()
-        sys.exit(1)
+Commands:
+  semgrep   Run Semgrep static code analysis scan
+  trivy     Run Trivy vulnerability scan on filesystem
+  help      Show this help message
+  run       Run the Flask web app
+"""
+    print(help_text)
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Secure CI/CD demo app")
+    parser.add_argument("command", nargs='?', default="run", help="Command to run")
+    args = parser.parse_args()
+
+    if args.command == "semgrep":
+        run_semgrep()
+    elif args.command == "trivy":
+        run_trivy()
+    elif args.command == "help":
+        show_help()
+    elif args.command == "run":
+        app.run(host='0.0.0.0', port=5000, debug=True)
+    else:
+        print(f"Unknown command: {args.command}")
+        show_help()
