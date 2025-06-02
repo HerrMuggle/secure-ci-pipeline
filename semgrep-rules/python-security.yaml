@@ -1,0 +1,12 @@
+rules:
+  - id: python-eval-used
+    patterns:
+      - pattern: eval(...)
+    message: "Use of eval() is insecure and should be avoided."
+    severity: ERROR
+    languages:
+      - python
+    metadata:
+      category: security
+      technology: python
+      precision: high
