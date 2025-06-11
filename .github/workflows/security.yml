@@ -24,13 +24,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
 
+      - name: Install Semgrep
+        run: pip install semgrep
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: python
 
       - name: Run Semgrep (SAST) with SARIF Output
-        run: semgrep --config ./semgrep-rules --sarif --output semgrep.sarif || true
+        run: semgrep --config ./semgrep-rules/ --sarif --output semgrep.sarif
 
       - name: Upload Semgrep Results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
