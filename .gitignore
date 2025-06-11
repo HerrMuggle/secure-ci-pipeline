@@ -5,3 +5,4 @@ __pycache__/
 .venv/
 .env
 .github/workflows/security.yml.old
+Dockerfile.old
