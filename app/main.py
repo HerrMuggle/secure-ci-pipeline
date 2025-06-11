@@ -59,3 +59,5 @@ if __name__ == "__main__":
     else:
         print(f"Unknown command: {args.command}")
         show_help()
+
+echo 'eval("print(\'This is a Semgrep test finding\')")  # Semgrep should flag this' > app/main.py

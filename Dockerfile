@@ -7,11 +7,20 @@ WORKDIR /app
 # Copy app code
 COPY app/ .
 
-# Copy semgrep rules directory (from Paul's repo, add your rules here)
+# Copy semgrep rules directory
 COPY semgrep-rules/ ./semgrep-rules/
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Default command runs the Flask app, but can be overridden
+# Install semgrep explicitly
+RUN pip install --no-cache-dir semgrep
+
+# Add a new user 'appuser' with a home directory
+RUN useradd -m appuser
+
+# Switch to the new user
+USER appuser
+
+# Default command runs the Flask app (can be overridden)
 CMD ["python", "main.py", "run"]
