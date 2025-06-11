@@ -10,6 +10,9 @@ jobs:
   security:
     runs-on: ubuntu-latest
 
+    permissions: # Add this block
+      security-events: write # Enables SARIF upload
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
