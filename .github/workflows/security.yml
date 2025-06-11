@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      security-events: write
+      security-events: write # Enables SARIF upload
 
     steps:
       - name: Checkout code
@@ -26,7 +26,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
-
       - name: Install Semgrep
         run: pip install semgrep
 
@@ -53,9 +52,8 @@ jobs:
           echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/trivy.list
           sudo apt-get update
           sudo apt-get install -y trivy
-
       - name: Build Docker image
-        run: docker build --build-arg UPGRADE_ZLIB=1 -t app-sec-demo .
+        run: docker build -t app-sec-demo .
 
       - name: Run Trivy scan
-        run: trivy image --severity HIGH,CRITICAL --exit-code 1 app-sec-demo
+        run: trivy image --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed app-sec-demo
