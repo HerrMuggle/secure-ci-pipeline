@@ -4,10 +4,11 @@ FROM python:3.13-slim
 # Set working directory
 WORKDIR /app
 
-# Install build tools and install/upgrade zlib safely
+# Install build tools, remove vulnerable zlib1g, build and install patched zlib from source
 USER root
 RUN apt-get update && \
-    apt-get install -y wget build-essential libapt-pkg6.0 zlib1g-dev && \
+    apt-get install -y wget build-essential && \
+    apt-get purge -y zlib1g && \
     wget https://zlib.net/zlib-1.3.1.tar.gz && \
     tar xzf zlib-1.3.1.tar.gz && \
     cd zlib-1.3.1 && \
