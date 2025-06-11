@@ -4,9 +4,23 @@ FROM python:3.13-slim
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies and upgrade zlib1g
+# Install build tools, remove vulnerable zlib1g, build and install patched zlib from source
 USER root
-RUN apt-get update && apt-get install -y --only-upgrade zlib1g && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y wget build-essential && \
+    apt-get purge -y zlib1g && \
+    wget https://zlib.net/zlib-1.3.1.tar.gz && \
+    tar xzf zlib-1.3.1.tar.gz && \
+    cd zlib-1.3.1 && \
+    ./configure && \
+    make && \
+    make install && \
+    cd .. && \
+    rm -rf zlib-1.3.1 zlib-1.3.1.tar.gz && \
+    ldconfig && \
+    apt-get remove -y wget build-essential && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy app code
 COPY app/ .
