@@ -28,7 +28,7 @@ jobs:
         uses: returntocorp/semgrep-action@v1
         with:
           config: ./semgrep-rules
-          output: semgrep.sarif
+          sarif: true
         continue-on-error: true
 
       - name: Upload Semgrep Results to GitHub Security tab
