@@ -4,6 +4,10 @@ FROM python:3.13-slim
 # Set working directory
 WORKDIR /app
 
+# Install system dependencies and upgrade zlib1g
+USER root
+RUN apt-get update && apt-get install -y --only-upgrade zlib1g && rm -rf /var/lib/apt/lists/*
+
 # Copy app code
 COPY app/ .
 
