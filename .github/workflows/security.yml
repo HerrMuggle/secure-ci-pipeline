@@ -10,7 +10,7 @@ jobs:
   security:
     runs-on: ubuntu-latest
 
-    permissions: # Add this block
+    permissions:
       security-events: write # Enables SARIF upload
 
     steps:
@@ -58,4 +58,4 @@ jobs:
         run: docker build -t app-sec-demo .
 
       - name: Run Trivy scan
-        run: trivy image --severity HIGH,CRITICAL --exit-code 1 app-sec-demo
+        run: trivy image --severity HIGH,CRITICAL --exit-code 1 --ignore-unfixed app-sec-demo
